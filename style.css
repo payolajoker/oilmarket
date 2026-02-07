@@ -646,3 +646,111 @@ body {
   border: 8px solid transparent;
   border-top-color: var(--bg-card);
 }
+
+/* ========================================
+   추가 UI 스타일: 날짜 탐색 및 상세 정보 버튼
+   ======================================== */
+
+.date-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.date-input {
+  flex: 1;
+  text-align: center;
+}
+
+.date-nav-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  width: 40px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  font-size: 0.9rem;
+}
+
+.date-nav-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
+}
+
+.today-btn {
+  margin-left: 8px;
+  padding: 0 16px;
+  height: 42px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+
+.today-btn:hover {
+  background: var(--primary-dark);
+}
+
+/* 시장 카드 상세 정보 액션 버튼 */
+.market-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  animation: fadeIn 0.3s ease;
+}
+
+.market-action-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: white;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.market-action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-route {
+  background: #0ea5e9;
+  /* 파란색 */
+}
+
+.btn-detail {
+  background: #64748b;
+  /* 회색 */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

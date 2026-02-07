@@ -108,9 +108,6 @@ function initMap() {
 /**
  * 지도에 시장 마커 표시
  */
-/**
- * 지도에 시장 마커 표시
- */
 function updateMapMarkers() {
     // 기존 마커 및 오버레이 제거
     state.markers.forEach(marker => marker.setMap(null));
@@ -120,7 +117,8 @@ function updateMapMarkers() {
 
     if (!state.map || state.filteredMarkets.length === 0) return;
 
-    // 마커 생성
+    const bounds = new kakao.maps.LatLngBounds();
+
     state.filteredMarkets.forEach((market, index) => {
         const position = new kakao.maps.LatLng(market.lat, market.lng);
 
@@ -161,6 +159,8 @@ function updateMapMarkers() {
             selectMarket(market, index);
             showMarketInfoOverlay(market, position);
         });
+
+        bounds.extend(position);
     });
 
     // 사용자 위치 마커 추가
@@ -186,27 +186,25 @@ function updateMapMarkers() {
 
         userOverlay.setMap(state.map);
         state.markers.push(userOverlay);
+        bounds.extend(userPosition);
     }
 
-    // 지도 영역 조정 (축척 설정)
-    const bounds = new kakao.maps.LatLngBounds();
-
+    // 지도 영역 조정 (축척 설정) - 사용자 위치 + 가장 가까운 시장 포함
     if (state.userLocation && state.filteredMarkets.length > 0) {
-        // [수정됨] 사용자 위치가 있는 경우: 사용자 위치 + 가장 가까운 시장 1개만 포함
+        const bounds = new kakao.maps.LatLngBounds();
+
+        // 사용자 위치
         const userPosition = new kakao.maps.LatLng(state.userLocation.lat, state.userLocation.lng);
         bounds.extend(userPosition);
 
+        // 가장 가까운 시장
         const nearestMarket = state.filteredMarkets[0];
         const marketPosition = new kakao.maps.LatLng(nearestMarket.lat, nearestMarket.lng);
         bounds.extend(marketPosition);
 
-        // 여백을 넉넉히 주어 두 지점이 잘 보이도록 설정
+        // 여백 설정
         state.map.setBounds(bounds, 80);
     } else if (state.filteredMarkets.length > 0) {
-        // 사용자 위치가 없는 경우: 모든 시장이 보이도록 설정
-        state.filteredMarkets.forEach(market => {
-            bounds.extend(new kakao.maps.LatLng(market.lat, market.lng));
-        });
         state.map.setBounds(bounds);
     }
 }
@@ -231,8 +229,9 @@ function showMarketInfoOverlay(market, position) {
       padding: 12px 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       font-family: 'Noto Sans KR', sans-serif;
-      min-width: 120px;
+      min-width: 140px;
       position: relative;
+      z-index: 100;
     ">
       <div style="font-size: 14px; font-weight: 600; color: #f8fafc; margin-bottom: 4px;">
         ${market.name}
@@ -243,14 +242,19 @@ function showMarketInfoOverlay(market, position) {
       <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
         장날: ${formatMarketDays(market.days)}
       </div>
+      <div style="display:flex; gap:6px; margin-top:10px; border-top:1px solid #334155; padding-top:8px;">
+        <a href="https://map.kakao.com/link/to/${market.name},${market.lat},${market.lng}" target="_blank" style="flex:1; background:#0ea5e9; color:white; font-size:11px; padding:6px 0; text-align:center; border-radius:4px; text-decoration:none; display:block;">🚗 길찾기</a>
+        <a href="https://map.kakao.com/link/search/${market.name}" target="_blank" style="flex:1; background:#64748b; color:white; font-size:11px; padding:6px 0; text-align:center; border-radius:4px; text-decoration:none; display:block;">🔍 상세</a>
+      </div>
     </div>
   `;
 
     const infoOverlay = new kakao.maps.CustomOverlay({
         position: position,
         content: content,
-        yAnchor: 1.3,
-        xAnchor: 0.5
+        yAnchor: 1.25,
+        xAnchor: 0.5,
+        zIndex: 100
     });
 
     infoOverlay.setMap(state.map);
@@ -289,7 +293,7 @@ function selectMarket(market, index) {
     if (state.map) {
         const position = new kakao.maps.LatLng(market.lat, market.lng);
         state.map.setCenter(position);
-        state.map.setLevel(5);
+        // showMarketInfoOverlay 호출은 클릭 이벤트에서 처리됨
     }
 }
 
@@ -339,6 +343,7 @@ function createMarketCard(market, index) {
         ? `<div class="market-rank">${index + 1}</div>`
         : '';
 
+    // data-name 속성 추가 (디버깅용)
     return `
     <article class="market-card" data-index="${index}" onclick="handleMarketClick(${index})">
       ${rankBadge}
@@ -351,6 +356,16 @@ function createMarketCard(market, index) {
         <span class="market-days-label">장날:</span>
         <span class="market-days-value">${formatMarketDays(market.days)}</span>
       </div>
+      
+      <!-- 상세 정보 버튼 (항상 표시 또는 선택 시 표시) -->
+      <div class="market-actions" onclick="event.stopPropagation()">
+        <a href="https://map.kakao.com/link/to/${market.name},${market.lat},${market.lng}" target="_blank" class="market-action-btn btn-route">
+          🚗 길찾기
+        </a>
+        <a href="https://map.kakao.com/link/search/${market.name}" target="_blank" class="market-action-btn btn-detail">
+          🔍 상세정보
+        </a>
+      </div>
     </article>
   `;
 }
@@ -362,6 +377,9 @@ function handleMarketClick(index) {
     const market = state.filteredMarkets[index];
     selectMarket(market, index);
     showMarketInfoOverlay(market, new kakao.maps.LatLng(market.lat, market.lng));
+
+    // 모바일에서는 카드가 클릭되면 해당 위치로 스크롤하거나 지도로 포커스 이동 가능
+    // 현재는 지도만 이동
 }
 
 /**
@@ -377,10 +395,8 @@ function renderMarketList() {
     const sortedMarkets = sortMarketsByDistance(openMarkets, userLocation);
     state.filteredMarkets = sortedMarkets;
 
-    // 통계 업데이트
-    const ending = getDayEnding(selectedDate);
-    elements.marketCount.textContent = sortedMarkets.length;
-    elements.dayEnding.textContent = ending === 0 ? '0, 10' : `${ending}`;
+    // 통계 업데이트 제거 (요청사항 2, 3)
+    // elements.marketCount 및 elements.dayEnding 제거됨
 
     // 목록 렌더링
     if (sortedMarkets.length === 0) {
@@ -410,14 +426,14 @@ function renderMarketList() {
  */
 function getUserLocation() {
     if (!navigator.geolocation) {
-        showLocationError('이 브라우저는 위치 서비스를 지원하지 않습니다.');
+        console.error('이 브라우저는 위치 서비스를 지원하지 않습니다.');
         return;
     }
 
     elements.locationBtn.disabled = true;
     elements.locationBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">확인 중</span>';
-    elements.locationStatus.textContent = '';
-    elements.locationStatus.className = 'location-status';
+
+    // 상태 메시지 UI 제거됨
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -428,12 +444,6 @@ function getUserLocation() {
 
             showLocationSuccess();
             renderMarketList();
-
-            // 지도 중심을 사용자 위치로 이동
-            if (state.map) {
-                const userPosition = new kakao.maps.LatLng(state.userLocation.lat, state.userLocation.lng);
-                state.map.setCenter(userPosition);
-            }
         },
         (error) => {
             let message = '위치를 가져올 수 없습니다.';
@@ -465,8 +475,7 @@ function showLocationSuccess() {
     elements.locationBtn.disabled = false;
     elements.locationBtn.className = 'location-btn success';
     elements.locationBtn.innerHTML = '<span class="btn-icon">✅</span><span class="btn-text">완료</span>';
-    elements.locationStatus.textContent = '가까운 순서로 정렬되었습니다.';
-    elements.locationStatus.className = 'location-status success';
+    console.log('위치 확인 완료');
 }
 
 /**
@@ -475,19 +484,39 @@ function showLocationSuccess() {
 function showLocationError(message) {
     elements.locationBtn.disabled = false;
     elements.locationBtn.innerHTML = '<span class="btn-icon">📍</span><span class="btn-text">내 위치</span>';
-    elements.locationStatus.textContent = message;
-    elements.locationStatus.className = 'location-status error';
+    console.error(message);
+    alert('위치를 가져오는데 실패했습니다: ' + message);
 }
 
 // ========================================
-// 이벤트 핸들러
+// 날짜/이벤트 핸들러
 // ========================================
 
 /**
- * 날짜 변경 핸들러
+ * 날짜 변경 핸들러 (Input)
  */
 function handleDateChange(event) {
     state.selectedDate = parseDate(event.target.value);
+    renderMarketList();
+}
+
+/**
+ * 날짜 변경 (버튼)
+ */
+function changeDate(days) {
+    const newDate = new Date(state.selectedDate);
+    newDate.setDate(newDate.getDate() + days);
+    state.selectedDate = newDate;
+    elements.datePicker.value = formatDateForInput(newDate);
+    renderMarketList();
+}
+
+/**
+ * 오늘 날짜로 설정
+ */
+function setToday() {
+    state.selectedDate = new Date();
+    elements.datePicker.value = formatDateForInput(state.selectedDate);
     renderMarketList();
 }
 
@@ -501,12 +530,12 @@ function handleDateChange(event) {
 function initElements() {
     elements = {
         datePicker: document.getElementById('date-picker'),
+        prevDayBtn: document.getElementById('prev-day-btn'), // 추가
+        nextDayBtn: document.getElementById('next-day-btn'), // 추가
+        todayBtn: document.getElementById('today-btn'), // 추가
         locationBtn: document.getElementById('location-btn'),
-        locationStatus: document.getElementById('location-status'),
         marketList: document.getElementById('market-list'),
-        marketCount: document.getElementById('market-count'),
-        dayEnding: document.getElementById('day-ending'),
-        centerLocationBtn: document.getElementById('center-location-btn')
+        // 제거됨: marketCount, dayEnding, centerLocationBtn(삭제), locationStatus(삭제)
     };
 }
 
@@ -525,8 +554,12 @@ function initApp() {
 
     // 이벤트 리스너 등록
     elements.datePicker.addEventListener('change', handleDateChange);
-    elements.locationBtn.addEventListener('click', getUserLocation);
-    elements.centerLocationBtn.addEventListener('click', centerToUserLocation);
+    if (elements.prevDayBtn) elements.prevDayBtn.addEventListener('click', () => changeDate(-1));
+    if (elements.nextDayBtn) elements.nextDayBtn.addEventListener('click', () => changeDate(1));
+    if (elements.todayBtn) elements.todayBtn.addEventListener('click', setToday);
+
+    if (elements.locationBtn) elements.locationBtn.addEventListener('click', getUserLocation);
+    // elements.centerLocationBtn 제거됨 (내 위치 버튼과 기능 통합 또는 불필요)
 
     // 초기 렌더링
     renderMarketList();

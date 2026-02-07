@@ -43,11 +43,16 @@
     <section class="control-panel">
       <div class="control-row">
         <div class="control-group flex-1">
-          <label for="date-picker" class="control-label">
+          <label class="control-label">
             <span class="label-icon">📅</span>
             날짜 선택
           </label>
-          <input type="date" id="date-picker" class="date-input">
+          <div class="date-control-group">
+            <button id="prev-day-btn" class="date-nav-btn" title="이전 날">◀</button>
+            <input type="date" id="date-picker" class="date-input">
+            <button id="next-day-btn" class="date-nav-btn" title="다음 날">▶</button>
+          </div>
+          <button id="today-btn" class="today-btn">오늘</button>
         </div>
 
         <div class="control-group">
@@ -57,20 +62,6 @@
             <span class="btn-text">내 위치</span>
           </button>
         </div>
-      </div>
-
-      <div id="location-status" class="location-status"></div>
-    </section>
-
-    <!-- 통계 정보 -->
-    <section class="stats-bar">
-      <div class="stat-item">
-        <span class="stat-label">오늘 열리는 장</span>
-        <span class="stat-value" id="market-count">-</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">장날 끝자리</span>
-        <span class="stat-value" id="day-ending">-</span>
       </div>
     </section>
 
