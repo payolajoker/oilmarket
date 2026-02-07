@@ -388,6 +388,20 @@ function handleMarketClick(index) {
 function renderMarketList() {
     const { selectedDate, userLocation } = state;
 
+    // 31일 예외 처리
+    if (selectedDate.getDate() === 31) {
+        state.filteredMarkets = [];
+        elements.marketList.innerHTML = `
+            <div class="empty-message">
+                <div class="empty-icon">📅</div>
+                <p>매월 31일에는 5일장이 열리지 않습니다.</p>
+                <p class="sub-text" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">(다음 날 1일장을 이용해 주세요)</p>
+            </div>
+        `;
+        updateMapMarkers(); // 지도 마커 제거
+        return;
+    }
+
     // 해당 날짜에 열리는 시장 필터링
     const openMarkets = filterMarketsByDate(selectedDate);
 
