@@ -108,6 +108,9 @@ function initMap() {
 /**
  * 지도에 시장 마커 표시
  */
+/**
+ * 지도에 시장 마커 표시
+ */
 function updateMapMarkers() {
     // 기존 마커 및 오버레이 제거
     state.markers.forEach(marker => marker.setMap(null));
@@ -117,8 +120,7 @@ function updateMapMarkers() {
 
     if (!state.map || state.filteredMarkets.length === 0) return;
 
-    const bounds = new kakao.maps.LatLngBounds();
-
+    // 마커 생성
     state.filteredMarkets.forEach((market, index) => {
         const position = new kakao.maps.LatLng(market.lat, market.lng);
 
@@ -159,8 +161,6 @@ function updateMapMarkers() {
             selectMarket(market, index);
             showMarketInfoOverlay(market, position);
         });
-
-        bounds.extend(position);
     });
 
     // 사용자 위치 마커 추가
@@ -186,11 +186,27 @@ function updateMapMarkers() {
 
         userOverlay.setMap(state.map);
         state.markers.push(userOverlay);
-        bounds.extend(userPosition);
     }
 
-    // 마커들이 모두 보이도록 지도 영역 조정
-    if (state.filteredMarkets.length > 0) {
+    // 지도 영역 조정 (축척 설정)
+    const bounds = new kakao.maps.LatLngBounds();
+
+    if (state.userLocation && state.filteredMarkets.length > 0) {
+        // [수정됨] 사용자 위치가 있는 경우: 사용자 위치 + 가장 가까운 시장 1개만 포함
+        const userPosition = new kakao.maps.LatLng(state.userLocation.lat, state.userLocation.lng);
+        bounds.extend(userPosition);
+
+        const nearestMarket = state.filteredMarkets[0];
+        const marketPosition = new kakao.maps.LatLng(nearestMarket.lat, nearestMarket.lng);
+        bounds.extend(marketPosition);
+
+        // 여백을 넉넉히 주어 두 지점이 잘 보이도록 설정
+        state.map.setBounds(bounds, 80);
+    } else if (state.filteredMarkets.length > 0) {
+        // 사용자 위치가 없는 경우: 모든 시장이 보이도록 설정
+        state.filteredMarkets.forEach(market => {
+            bounds.extend(new kakao.maps.LatLng(market.lat, market.lng));
+        });
         state.map.setBounds(bounds);
     }
 }
