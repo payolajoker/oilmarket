@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="내 위치 기준 가까운 5일장을 찾아보세요. 날짜별 장날 정보와 거리순 정렬을 제공합니다.">
+  <title>5일장 찾기 - 내 주변 오일장</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- 카카오맵 SDK -->
+  <script type="text/javascript"
+    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c2db0ea3cf94c9b50e56b5883f54537a&libraries=services&autoload=false"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="header-content">
+        <h1 class="logo">
+          <span class="logo-icon">🏪</span>
+          <span class="logo-text">5일장 찾기</span>
+        </h1>
+        <p class="tagline">내 주변 전통시장을 찾아보세요</p>
+      </div>
+    </header>
+
+    <!-- 지도 섹션 -->
+    <section class="map-section">
+      <div id="map" class="map-container"></div>
+      <div class="map-overlay">
+        <button id="center-location-btn" class="center-btn" title="내 위치로 이동">
+          <span>📍</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 컨트롤 패널 -->
+    <section class="control-panel">
+      <div class="control-row">
+        <div class="control-group flex-1">
+          <label for="date-picker" class="control-label">
+            <span class="label-icon">📅</span>
+            날짜 선택
+          </label>
+          <input type="date" id="date-picker" class="date-input">
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">&nbsp;</label>
+          <button id="location-btn" class="location-btn">
+            <span class="btn-icon">📍</span>
+            <span class="btn-text">내 위치</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="location-status" class="location-status"></div>
+    </section>
+
+    <!-- 통계 정보 -->
+    <section class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">오늘 열리는 장</span>
+        <span class="stat-value" id="market-count">-</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">장날 끝자리</span>
+        <span class="stat-value" id="day-ending">-</span>
+      </div>
+    </section>
+
+    <!-- 시장 목록 -->
+    <main class="market-list-container">
+      <div id="market-list" class="market-list">
+        <div class="loading-message">
+          <div class="loading-spinner"></div>
+          <p>시장 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+      <p>데이터 출처: <a href="https://wowmap.kr/market5" target="_blank" rel="noopener">wowmap.kr</a></p>
+      <p class="copyright">© 2026 5일장 찾기</p>
+    </footer>
+  </div>
+
+  <script src="market_data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
