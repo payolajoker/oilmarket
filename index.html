@@ -41,27 +41,21 @@
 
     <!-- 컨트롤 패널 -->
     <section class="control-panel">
-      <div class="control-row">
-        <div class="control-group flex-1">
-          <label class="control-label">
-            <span class="label-icon">📅</span>
-            날짜 선택
-          </label>
-          <div class="date-control-group">
-            <button id="prev-day-btn" class="date-nav-btn" title="이전 날">◀</button>
-            <input type="date" id="date-picker" class="date-input">
-            <button id="next-day-btn" class="date-nav-btn" title="다음 날">▶</button>
-          </div>
-          <button id="today-btn" class="today-btn">오늘</button>
+      <!-- 날짜 컨트롤 (상단) -->
+      <div class="control-row date-row">
+        <button id="prev-day-btn" class="nav-btn" title="이전 날">◀</button>
+        <div class="date-display-wrapper">
+          <input type="date" id="date-picker" class="date-input">
         </div>
+        <button id="next-day-btn" class="nav-btn" title="다음 날">▶</button>
+      </div>
 
-        <div class="control-group">
-          <label class="control-label">&nbsp;</label>
-          <button id="location-btn" class="location-btn">
-            <span class="btn-icon">📍</span>
-            <span class="btn-text">내 위치</span>
-          </button>
-        </div>
+      <!-- 액션 버튼 (하단) -->
+      <div class="control-row action-row">
+        <button id="today-btn" class="action-btn secondary">오늘</button>
+        <button id="location-btn" class="action-btn primary">
+          <span class="btn-icon">📍</span> 내 위치
+        </button>
       </div>
     </section>
 

@@ -473,9 +473,8 @@ function getUserLocation() {
  */
 function showLocationSuccess() {
     elements.locationBtn.disabled = false;
-    elements.locationBtn.className = 'location-btn success';
-    elements.locationBtn.innerHTML = '<span class="btn-icon">✅</span><span class="btn-text">완료</span>';
-    console.log('위치 확인 완료');
+    elements.locationBtn.innerHTML = '<span class="btn-icon">📍</span><span class="btn-text">내 위치</span>';
+    // console.log('위치 확인 완료');
 }
 
 /**
